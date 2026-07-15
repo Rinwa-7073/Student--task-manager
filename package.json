@@ -1,0 +1,29 @@
+{
+  "name": "student-task-manager",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Repository root — hosts shared dev tooling (Husky, lint-staged) for the backend and frontend projects, which are managed as independent npm packages.",
+  "scripts": {
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build:backend": "npm run build --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "lint:backend": "npm run lint --prefix backend",
+    "lint:frontend": "npm run lint --prefix frontend",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
+  },
+  "lint-staged": {
+    "backend/src/**/*.ts": [
+      "prettier --write --config backend/.prettierrc.json",
+      "eslint --config backend/.eslintrc.json --fix"
+    ],
+    "frontend/src/**/*.{ts,tsx,css}": [
+      "prettier --write --config frontend/.prettierrc.json",
+      "eslint --fix"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+import type { NextFunction, Request, Response } from 'express';
+import { ApiError } from '@utils/ApiError';
+
+/**
+ * Catches any request that didn't match a defined route and forwards a
+ * 404 ApiError to the centralized error handler, keeping the "unmatched
+ * route" concern separate from "how errors are formatted".
+ */
+export const notFound = (req: Request, _res: Response, next: NextFunction): void => {
+  next(ApiError.notFound(`Route not found: ${req.method} ${req.originalUrl}`));
+};

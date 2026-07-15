@@ -1,0 +1,49 @@
+// ==============================================
+// Prisma Schema — Student Task Manager
+// ==============================================
+// Datasource: SQLite (file-based, zero-config, ideal for
+// portfolio / local-first development). Swapping to
+// Postgres later only requires changing `provider` + `url`.
+// ==============================================
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "client" // Rust-free query compiler (no native binary) — see src/config/prisma.ts
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------------------------
+// Enums
+// ------------------------------------------------
+// SQLite has no native enum type, so Prisma represents
+// these as strings constrained at the application layer
+// (see src/features/tasks/task.validation.ts). Keeping the
+// canonical enum definitions here (as comments) documents
+// intent and keeps the Zod schemas as the single source of
+// runtime truth.
+//
+// TaskPriority: LOW | MEDIUM | HIGH
+// TaskStatus:   TODO | IN_PROGRESS | COMPLETED
+// TaskCategory: DSA | SQL | PROJECT | APPLICATION | INTERVIEW_PREP | OTHER
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  priority    String   @default("MEDIUM")
+  status      String   @default("TODO")
+  category    String   @default("OTHER")
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([priority])
+  @@index([category])
+  @@index([dueDate])
+  @@map("tasks")
+}
