@@ -13,7 +13,6 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 // ------------------------------------------------
@@ -30,6 +29,19 @@ datasource db {
 // TaskStatus:   TODO | IN_PROGRESS | COMPLETED
 // TaskCategory: DSA | SQL | PROJECT | APPLICATION | INTERVIEW_PREP | OTHER
 
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String // bcrypt hash — never the plaintext password
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks Task[]
+
+  @@map("users")
+}
+
 model Task {
   id          String   @id @default(cuid())
   title       String
@@ -41,9 +53,13 @@ model Task {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([status])
   @@index([priority])
   @@index([category])
   @@index([dueDate])
+  @@index([userId])
   @@map("tasks")
 }

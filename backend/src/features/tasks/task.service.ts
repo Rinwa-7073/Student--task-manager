@@ -21,12 +21,20 @@ import {
  * never talk to Prisma directly — they call into this service — so the
  * persistence layer can be mocked in tests or swapped out without
  * touching HTTP concerns.
+ *
+ * Every method takes `userId` and scopes its query to it. This is the
+ * entire mechanism behind "tasks are private to the account that created
+ * them" — there's no separate authorization layer to keep in sync; a task
+ * that isn't yours simply doesn't match `where: { userId }` and looks
+ * exactly like a 404, which is also the correct thing to reveal to an
+ * attacker probing for other users' task ids.
  */
 class TaskService {
-  async findMany(query: TaskQueryInput) {
+  async findMany(userId: string, query: TaskQueryInput) {
     const { page, limit, status, priority, category, search, sortBy, sortOrder } = query;
 
     const where: Prisma.TaskWhereInput = {
+      userId,
       ...(status && { status }),
       ...(priority && { priority }),
       ...(category && { category }),
@@ -56,23 +64,24 @@ class TaskService {
     };
   }
 
-  async findById(id: string) {
-    const task = await prisma.task.findUnique({ where: { id } });
+  async findById(userId: string, id: string) {
+    const task = await prisma.task.findFirst({ where: { id, userId } });
     if (!task) throw ApiError.notFound(`Task with id "${id}" was not found`);
     return task;
   }
 
-  async create(input: CreateTaskInput) {
+  async create(userId: string, input: CreateTaskInput) {
     return prisma.task.create({
       data: {
         ...input,
+        userId,
         dueDate: input.dueDate ? new Date(input.dueDate) : null,
       },
     });
   }
 
-  async update(id: string, input: UpdateTaskInput) {
-    await this.findById(id); // throws 404 if missing
+  async update(userId: string, id: string, input: UpdateTaskInput) {
+    await this.findById(userId, id); // throws 404 if missing or not owned by this user
 
     return prisma.task.update({
       where: { id },
@@ -85,8 +94,8 @@ class TaskService {
     });
   }
 
-  async delete(id: string): Promise<void> {
-    await this.findById(id); // throws 404 if missing
+  async delete(userId: string, id: string): Promise<void> {
+    await this.findById(userId, id); // throws 404 if missing or not owned by this user
     await prisma.task.delete({ where: { id } });
   }
 
@@ -96,22 +105,24 @@ class TaskService {
    * complete" is the single most common action a user takes on a task —
    * it deserves a one-click affordance instead of a full edit form.
    */
-  async toggleComplete(id: string) {
-    const task = await this.findById(id);
+  async toggleComplete(userId: string, id: string) {
+    const task = await this.findById(userId, id);
     return prisma.task.update({
       where: { id },
       data: { status: task.status === 'COMPLETED' ? 'TODO' : 'COMPLETED' },
     });
   }
 
-  async getStatistics(): Promise<TaskStatistics> {
+  async getStatistics(userId: string): Promise<TaskStatistics> {
+    const where: Prisma.TaskWhereInput = { userId };
+
     const [total, statusGroups, priorityGroups, categoryGroups, overdue] = await Promise.all([
-      prisma.task.count(),
-      prisma.task.groupBy({ by: ['status'], _count: true }),
-      prisma.task.groupBy({ by: ['priority'], _count: true }),
-      prisma.task.groupBy({ by: ['category'], _count: true }),
+      prisma.task.count({ where }),
+      prisma.task.groupBy({ by: ['status'], where, _count: true }),
+      prisma.task.groupBy({ by: ['priority'], where, _count: true }),
+      prisma.task.groupBy({ by: ['category'], where, _count: true }),
       prisma.task.count({
-        where: { dueDate: { lt: new Date() }, status: { not: 'COMPLETED' } },
+        where: { ...where, dueDate: { lt: new Date() }, status: { not: 'COMPLETED' } },
       }),
     ]);
 

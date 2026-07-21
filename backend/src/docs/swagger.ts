@@ -12,7 +12,25 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [{ url: `http://localhost:${env.PORT}${env.API_PREFIX}` }],
     components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Obtain a token from POST /auth/register or POST /auth/login',
+        },
+      },
       schemas: {
+        User: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'clx1a2b3c0000userxyz1234' },
+            name: { type: 'string', example: 'Hritvi' },
+            email: { type: 'string', format: 'email' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
         Task: {
           type: 'object',
           properties: {
@@ -32,6 +50,7 @@ const options: swaggerJsdoc.Options = {
         },
       },
     },
+    security: [{ bearerAuth: [] }],
   },
   apis: ['./src/features/**/*.routes.ts'],
 };

@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { config } from '@/config/env';
+import { tokenStorage } from '@/lib/tokenStorage';
 import type { ApiFailure } from '@/types/api';
 
 /**
@@ -25,12 +26,34 @@ export class ApiRequestError extends Error {
   }
 }
 
+// Attach the JWT (if we have one) to every outgoing request.
+apiClient.interceptors.request.use((requestConfig) => {
+  const token = tokenStorage.get();
+  if (token) {
+    requestConfig.headers.set('Authorization', `Bearer ${token}`);
+  }
+  return requestConfig;
+});
+
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<ApiFailure>) => {
+    const status = error.response?.status;
     const message = error.response?.data?.message ?? error.message ?? 'Something went wrong';
-    return Promise.reject(
-      new ApiRequestError(message, error.response?.status, error.response?.data?.errors),
-    );
+
+    // A 401 means the token is missing, expired, or invalid — there's no
+    // recovering the current session, so clear it and bounce to /login.
+    // Skip this on the auth endpoints themselves: a failed *login attempt*
+    // is a normal 401 that the login form should handle inline, not a
+    // reason to nuke a (nonexistent) session and reload the page.
+    const isAuthEndpoint = error.config?.url?.startsWith('/auth/');
+    if (status === 401 && !isAuthEndpoint) {
+      tokenStorage.clear();
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.assign('/login');
+      }
+    }
+
+    return Promise.reject(new ApiRequestError(message, status, error.response?.data?.errors));
   },
 );

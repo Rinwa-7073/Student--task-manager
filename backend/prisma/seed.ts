@@ -1,8 +1,15 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import bcrypt from 'bcryptjs';
 
 const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL ?? 'file:./dev.db' });
 const prisma = new PrismaClient({ adapter });
+
+const DEMO_USER = {
+  name: 'Demo Student',
+  email: 'demo@example.com',
+  password: 'password123', // hashed before insert — see main()
+};
 
 const sampleTasks = [
   {
@@ -57,13 +64,20 @@ const sampleTasks = [
 
 async function main(): Promise<void> {
   console.log('🌱 Seeding database...');
+
   await prisma.task.deleteMany();
+  await prisma.user.deleteMany({ where: { email: DEMO_USER.email } });
+
+  const passwordHash = await bcrypt.hash(DEMO_USER.password, 10);
+  const user = await prisma.user.create({
+    data: { name: DEMO_USER.name, email: DEMO_USER.email, password: passwordHash },
+  });
 
   for (const task of sampleTasks) {
-    await prisma.task.create({ data: task });
+    await prisma.task.create({ data: { ...task, userId: user.id } });
   }
 
-  console.log(`✅ Seeded ${sampleTasks.length} tasks.`);
+  console.log(`✅ Seeded 1 user (${DEMO_USER.email} / ${DEMO_USER.password}) and ${sampleTasks.length} tasks.`);
 }
 
 main()

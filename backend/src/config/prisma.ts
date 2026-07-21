@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaBetterSQLite3 } from '@prisma/adapter-better-sqlite3';
+import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
 import { env, isDevelopment } from '@config/env';
 import { logger } from '@config/logger';
 
@@ -16,7 +16,7 @@ import { logger } from '@config/logger';
  * The singleton pattern below prevents creating a new PrismaClient (and
  * therefore a new connection pool) on every hot-reload in development.
  */
-const adapter = new PrismaBetterSQLite3({
+const adapter = new PrismaBetterSqlite3({
   url: env.DATABASE_URL.replace(/^file:/, ''),
 });
 

@@ -21,3 +21,9 @@ services:
         sync: false # set to your deployed Vercel URL, e.g. https://student-task-manager.vercel.app
       - key: LOG_LEVEL
         value: info
+      - key: JWT_SECRET
+        generateValue: true # Render generates a strong random secret on first deploy
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: BCRYPT_SALT_ROUNDS
+        value: 10
