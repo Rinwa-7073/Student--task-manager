@@ -136,38 +136,55 @@ but the architecture was deliberately kept ready for it with minimal churn:
 
 ```
 student-task-manager/
-├── render.yaml               # Render deployment blueprint (backend)
-├── backend/                  # Express API
-│   ├── prisma/
-│   │   ├── schema.prisma     # Task model, rust-free "client" engine
-│   │   ├── migrations/       # Versioned SQL migrations
-│   │   └── seed.ts           # Sample data
-│   ├── tests/
-│   │   └── task.api.test.ts  # Supertest integration tests, every endpoint
-│   └── src/
-│       ├── config/           # env (Zod-validated), logger, prisma client singleton
-│       ├── middleware/       # errorHandler, notFound, requestLogger, validateRequest
-│       ├── utils/            # ApiError, ApiResponse, asyncHandler
-│       ├── features/tasks/   # controller, service, routes, validation, types
-│       ├── docs/             # Swagger/OpenAPI config
-│       ├── routes/           # aggregate router
-│       ├── app.ts            # Express app wiring
-│       └── server.ts         # entrypoint + graceful shutdown
 │
-└── frontend/                 # React SPA
-    ├── vercel.json            # Vercel deployment config
-    └── src/
-        ├── api/                # axios instance + interceptors
-        ├── components/
-        │   ├── ui/             # Button, Card, Badge, Input, Select, Dialog, ProgressBar...
-        │   ├── layout/         # Sidebar, Navbar, DashboardLayout
-        │   ├── common/         # EmptyState, ErrorBoundary, ConfirmDialog, LoadingSkeletons
-        │   └── tasks/          # TaskCard, TaskTable, TaskForm, StatisticsCards
-        ├── features/tasks/     # API service, query hooks, mutation hooks, display helpers
-        ├── pages/              # DashboardPage, TasksPage, TaskFormPage, NotFoundPage
-        ├── providers/          # ThemeProvider, QueryProvider, ToastProvider
-        ├── routes/             # React Router config (lazy-loaded)
-        └── types/              # Shared Task/API types
+├── backend/
+│   │
+│   ├── prisma/
+│   │   ├── migrations/
+│   │   ├── schema.prisma
+│   │   └── seed.ts
+│   │
+│   ├── src/
+│   │   ├── config/
+│   │   ├── docs/
+│   │   ├── features/
+│   │   │   ├── auth/
+│   │   │   └── tasks/
+│   │   ├── middleware/
+│   │   ├── routes/
+│   │   ├── utils/
+│   │   ├── app.ts
+│   │   └── server.ts
+│   │
+│   ├── tests/
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── frontend/
+│   │
+│   ├── src/
+│   │   ├── api/
+│   │   ├── components/
+│   │   │   ├── common/
+│   │   │   ├── layout/
+│   │   │   ├── tasks/
+│   │   │   └── ui/
+│   │   ├── config/
+│   │   ├── features/
+│   │   │   └── tasks/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── providers/
+│   │   ├── routes/
+│   │   ├── types/
+│   │   └── utils/
+│   │
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.ts
+│
+├── render.yaml
+├── README.md
 ```
 
 ## API endpoints
@@ -230,15 +247,8 @@ strings and constrained by Zod at the API boundary (`task.validation.ts`) —
 the canonical value sets are documented as comments in `schema.prisma` and
 shared as TypeScript `as const` arrays on both frontend and backend.
 
-## Screenshots
 
-> _Add screenshots or a short screen recording here once deployed — a
-> dashboard view, the task table with filters, and the create/edit form are
-> the three most useful for a recruiter skimming the repo._
 
-| Dashboard | Task list | Create/edit form |
-|---|---|---|
-| `docs/screenshots/dashboard.png` | `docs/screenshots/tasks.png` | `docs/screenshots/form.png` |
 
 ## Installation guide
 
@@ -357,54 +367,7 @@ npm run typecheck      # tsc --noEmit
 npm run build           # full production build — the strongest end-to-end check
 ```
 
-## Deployment
 
-### Backend → Render
-
-A `render.yaml` blueprint is included at the repo root. In the Render
-dashboard: **New → Blueprint**, point it at this repo, and Render will read
-`render.yaml` automatically (root directory `backend`, build command runs
-`prisma generate` + `prisma migrate deploy` + `tsc`, start command `npm start`).
-
-Set `CLIENT_ORIGIN` in the Render dashboard to your deployed Vercel URL once
-you have it (comma-separate multiple origins if you also want preview URLs to
-work).
-
-> **SQLite on Render's free tier is ephemeral** — the filesystem resets on
-> every redeploy, so `dev.db`/`prod.db` won't persist data long-term. For a
-> real production deployment, either attach a
-> [Render Disk](https://render.com/docs/disks) at `DATABASE_URL`'s path, or
-> swap the `provider` in `schema.prisma` from `sqlite` to `postgresql` and
-> point `DATABASE_URL` at a managed Postgres instance (Render/Neon/Supabase
-> all offer free tiers) — the Prisma schema and all application code are
-> otherwise unchanged.
-
-### Frontend → Vercel
-
-A `vercel.json` is included at `frontend/vercel.json`. In Vercel: **New
-Project → Import** this repo, set the **Root Directory** to `frontend`, and
-add the environment variable:
-
-```
-VITE_API_BASE_URL=https://<your-render-service>.onrender.com/api/v1
-```
-
-Vercel auto-detects the Vite framework preset; the included config just adds
-an SPA rewrite so client-side routes (e.g. `/tasks/new`) don't 404 on refresh.
-
-## Future improvements
-
-- **JWT authentication** — register/login/logout, bcrypt password hashing, a
-  `User` model, and per-user task scoping (the architecture is ready for this;
-  see [Auth-ready by design](#auth-ready-by-design)).
-- Bulk actions (multi-select delete / mark-complete).
-- Drag-and-drop status board (Kanban view) alongside the table view.
-- Postgres in production, SQLite only for local dev.
-- CI pipeline (GitHub Actions) running lint + typecheck + tests on every PR.
-
-## License
-
-[MIT](LICENSE)
 
 ## Author
 
