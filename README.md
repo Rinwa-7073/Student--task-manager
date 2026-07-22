@@ -13,28 +13,6 @@ targeting SDE internships and full-time roles.
 ![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?logo=prisma&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
----
-
-## Table of contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Tech stack](#tech-stack)
-- [Folder structure](#folder-structure)
-- [API endpoints](#api-endpoints)
-- [Database schema](#database-schema)
-- [Screenshots](#screenshots)
-- [Installation guide](#installation-guide)
-- [Environment variables](#environment-variables)
-- [Prisma migration commands](#prisma-migration-commands)
-- [Running the development servers](#running-the-development-servers)
-- [Building for production](#building-for-production)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Future improvements](#future-improvements)
-- [License](#license)
-- [Author](#author)
 
 ---
 
