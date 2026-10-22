@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -7,9 +8,17 @@ import { TaskTable } from '@/components/tasks/TaskTable';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { CATEGORY_LABEL, PRIORITY_LABEL, STATUS_LABEL } from '@/features/tasks/taskDisplay';
-import { TASK_CATEGORIES, TASK_PRIORITIES, TASK_STATUSES, type TaskListParams } from '@/types/task';
+import {
+  TASK_CATEGORIES,
+  TASK_PRIORITIES,
+  TASK_STATUSES,
+  type TaskListParams,
+} from '@/types/task';
 
-const SORT_OPTIONS: { value: `${NonNullable<TaskListParams['sortBy']>}:${NonNullable<TaskListParams['sortOrder']>}`; label: string }[] = [
+const SORT_OPTIONS: {
+  value: `${NonNullable<TaskListParams['sortBy']>}:${NonNullable<TaskListParams['sortOrder']>}`;
+  label: string;
+}[] = [
   { value: 'createdAt:desc', label: 'Newest first' },
   { value: 'createdAt:asc', label: 'Oldest first' },
   { value: 'dueDate:asc', label: 'Due soonest' },
@@ -17,6 +26,11 @@ const SORT_OPTIONS: { value: `${NonNullable<TaskListParams['sortBy']>}:${NonNull
   { value: 'priority:desc', label: 'Priority (high first)' },
   { value: 'title:asc', label: 'Title (A–Z)' },
 ];
+
+function escapeCsv(value: unknown): string {
+  const text = value == null ? '' : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
 
 export function TasksPage() {
   const [filters, setFilters] = useState<TaskListParams>({
@@ -33,8 +47,42 @@ export function TasksPage() {
     search: debouncedSearch || undefined,
   });
 
-  const updateFilter = <K extends keyof TaskListParams>(key: K, value: TaskListParams[K]) => {
+  const updateFilter = <K extends keyof TaskListParams>(
+    key: K,
+    value: TaskListParams[K],
+  ) => {
     setFilters((f) => ({ ...f, [key]: value, page: 1 }));
+  };
+
+  const exportCsv = () => {
+    const tasks = data?.items ?? [];
+    if (!tasks.length) return;
+
+    const headers = ['Title', 'Due Date', 'Priority', 'Category', 'Status'];
+    const rows = tasks.map((task) => [
+      task.title,
+      task.dueDate,
+      task.priority,
+      task.category,
+      task.status,
+    ]);
+
+    const csv = [
+      headers.map(escapeCsv).join(','),
+      ...rows.map((row) => row.map(escapeCsv).join(',')),
+    ].join('\r\n');
+
+    const blob = new Blob(['\uFEFF', csv], {
+      type: 'text/csv;charset=utf-8;',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'student-tasks.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -50,13 +98,13 @@ export function TasksPage() {
         <Select
           className="w-auto"
           value={filters.status ?? ''}
-          onChange={(e) => updateFilter('status', (e.target.value || undefined) as TaskListParams['status'])}
+          onChange={(e) =>
+            updateFilter('status', (e.target.value || undefined) as TaskListParams['status'])
+          }
         >
           <option value="">All statuses</option>
           {TASK_STATUSES.map((s) => (
-            <option key={s} value={s}>
-              {STATUS_LABEL[s]}
-            </option>
+            <option key={s} value={s}>{STATUS_LABEL[s]}</option>
           ))}
         </Select>
 
@@ -69,9 +117,7 @@ export function TasksPage() {
         >
           <option value="">All priorities</option>
           {TASK_PRIORITIES.map((p) => (
-            <option key={p} value={p}>
-              {PRIORITY_LABEL[p]}
-            </option>
+            <option key={p} value={p}>{PRIORITY_LABEL[p]}</option>
           ))}
         </Select>
 
@@ -84,9 +130,7 @@ export function TasksPage() {
         >
           <option value="">All categories</option>
           {TASK_CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {CATEGORY_LABEL[c]}
-            </option>
+            <option key={c} value={c}>{CATEGORY_LABEL[c]}</option>
           ))}
         </Select>
 
@@ -102,11 +146,19 @@ export function TasksPage() {
           }}
         >
           {SORT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
           ))}
         </Select>
+
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!data?.items?.length || isLoading || isPlaceholderData}
+          onClick={exportCsv}
+        >
+          <Download className="h-4 w-4" />
+          Export CSV
+        </Button>
       </div>
 
       <TaskTable tasks={data?.items} isLoading={isLoading} />

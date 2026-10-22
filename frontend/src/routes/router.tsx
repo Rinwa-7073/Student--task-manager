@@ -11,6 +11,14 @@ const TasksPage = lazy(() => import('@/pages/TasksPage').then((m) => ({ default:
 const TaskFormPage = lazy(() =>
   import('@/pages/TaskFormPage').then((m) => ({ default: m.TaskFormPage })),
 );
+
+const StudyPlannerPage = lazy(() =>
+  import('@/pages/StudyPlannerPage').then((m) => ({
+    default: m.default,
+  })),
+);
+
+
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const RegisterPage = lazy(() =>
   import('@/pages/RegisterPage').then((m) => ({ default: m.RegisterPage })),
@@ -40,6 +48,7 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: withSuspense(<DashboardPage />) },
           { path: 'tasks', element: withSuspense(<TasksPage />) },
+          { path: 'study-planner', element: withSuspense(<StudyPlannerPage />) },
           { path: 'tasks/new', element: withSuspense(<TaskFormPage />) },
           { path: 'tasks/:id/edit', element: withSuspense(<TaskFormPage />) },
           { path: '*', element: withSuspense(<NotFoundPage />) },

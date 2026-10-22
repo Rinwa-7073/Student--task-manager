@@ -2,10 +2,13 @@ import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, ListChecks, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
+
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/tasks', label: 'Tasks', icon: ListChecks, end: false },
+  { to: '/study-planner', label: 'Study Planner', icon: GraduationCap, end: false },
 ];
+
 
 export function Sidebar() {
   return (
