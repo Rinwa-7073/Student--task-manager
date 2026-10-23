@@ -74,7 +74,7 @@ describe('Task API', () => {
   });
 
   it('GET /api/v1/tasks/:id returns 404 for an unknown id', async () => {
-    const res = await request(app).get('/api/v1/tasks/nonexistent000000000000').set(auth());
+    const res = await request(app).get('/api/v1/tasks/cl00000000000000000000000').set(auth());
     expect(res.status).toBe(404);
   });
 
@@ -115,6 +115,40 @@ describe('Task API', () => {
     const second = await request(app).patch(`/api/v1/tasks/${createdId}/complete`).set(auth());
     expect(second.status).toBe(200);
     expect(second.body.data.status).not.toBe('COMPLETED');
+  });
+
+  it('PATCH /api/v1/tasks/:id/focus logs focus minutes', async () => {
+    const res = await request(app)
+      .patch(`/api/v1/tasks/${createdId}/focus`)
+      .set(auth())
+      .send({ minutes: 25 });
+    expect(res.status).toBe(200);
+    expect(res.body.data.loggedMinutes).toBe(25);
+  });
+
+  it('handles subtasks creation and toggling', async () => {
+    const taskWithSubs = await request(app)
+      .post('/api/v1/tasks')
+      .set(auth())
+      .send({
+        title: 'Task with subtasks',
+        subtasks: [
+          { title: 'Subtask 1', completed: false },
+          { title: 'Subtask 2', completed: false },
+        ],
+      });
+    expect(taskWithSubs.status).toBe(201);
+    expect(taskWithSubs.body.data.subtasks.length).toBe(2);
+
+    const subId = taskWithSubs.body.data.subtasks[0].id;
+    const toggled = await request(app)
+      .patch(`/api/v1/tasks/${taskWithSubs.body.data.id}/subtasks/${subId}/toggle`)
+      .set(auth());
+    expect(toggled.status).toBe(200);
+    expect(toggled.body.data.subtasks[0].completed).toBe(true);
+
+    // cleanup
+    await request(app).delete(`/api/v1/tasks/${taskWithSubs.body.data.id}`).set(auth());
   });
 
   it('GET /api/v1/tasks/statistics returns aggregate counts', async () => {

@@ -7,6 +7,12 @@ const dueDateSchema = z
   .optional()
   .nullable();
 
+export const subtaskSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().trim().min(1, 'Subtask title is required').max(200),
+  completed: z.boolean().default(false),
+});
+
 export const createTaskSchema = z.object({
   title: z
     .string()
@@ -18,12 +24,24 @@ export const createTaskSchema = z.object({
   status: z.enum(TASK_STATUSES).default('TODO'),
   category: z.enum(TASK_CATEGORIES).default('OTHER'),
   dueDate: dueDateSchema,
+  subtasks: z.array(subtaskSchema).optional().nullable(),
+  loggedMinutes: z.number().int().nonnegative().optional().default(0),
+  estimatedMinutes: z.number().int().positive().optional().nullable(),
 });
 
 export const updateTaskSchema = createTaskSchema.partial();
 
 export const taskIdParamSchema = z.object({
   id: z.string().cuid('Invalid task id'),
+});
+
+export const taskSubtaskParamSchema = z.object({
+  id: z.string().cuid('Invalid task id'),
+  subtaskId: z.string().min(1, 'Subtask id is required'),
+});
+
+export const logTimeSchema = z.object({
+  minutes: z.number().int().positive('Minutes must be at least 1'),
 });
 
 export const taskQuerySchema = z.object({
@@ -40,3 +58,4 @@ export const taskQuerySchema = z.object({
 export type CreateTaskInput = z.infer<typeof createTaskSchema>;
 export type UpdateTaskInput = z.infer<typeof updateTaskSchema>;
 export type TaskQueryInput = z.infer<typeof taskQuerySchema>;
+export type LogTimeInput = z.infer<typeof logTimeSchema>;

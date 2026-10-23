@@ -50,6 +50,9 @@ model Task {
   status      String   @default("TODO")
   category    String   @default("OTHER")
   dueDate     DateTime?
+  subtasks    String?
+  loggedMinutes Int    @default(0)
+  estimatedMinutes Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

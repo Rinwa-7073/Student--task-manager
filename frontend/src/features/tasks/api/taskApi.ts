@@ -45,6 +45,18 @@ export const taskApi = {
     return data.data;
   },
 
+  logFocusTime: async (id: string, minutes: number): Promise<Task> => {
+    const { data } = await apiClient.patch<ApiSuccess<Task>>(`/tasks/${id}/focus`, { minutes });
+    return data.data;
+  },
+
+  toggleSubtask: async (id: string, subtaskId: string): Promise<Task> => {
+    const { data } = await apiClient.patch<ApiSuccess<Task>>(
+      `/tasks/${id}/subtasks/${subtaskId}/toggle`,
+    );
+    return data.data;
+  },
+
   remove: async (id: string): Promise<void> => {
     await apiClient.delete(`/tasks/${id}`);
   },

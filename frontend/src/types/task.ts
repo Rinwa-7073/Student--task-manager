@@ -14,6 +14,12 @@ export const TASK_CATEGORIES = [
 ] as const;
 export type TaskCategory = (typeof TASK_CATEGORIES)[number];
 
+export interface Subtask {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -22,6 +28,9 @@ export interface Task {
   status: TaskStatus;
   category: TaskCategory;
   dueDate: string | null;
+  subtasks?: Subtask[];
+  loggedMinutes?: number;
+  estimatedMinutes?: number | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +41,9 @@ export interface TaskStatistics {
   byPriority: Record<TaskPriority, number>;
   byCategory: Record<TaskCategory, number>;
   overdue: number;
+  totalLoggedMinutes?: number;
+  completedSubtasksCount?: number;
+  totalSubtasksCount?: number;
 }
 
 export interface CreateTaskPayload {
@@ -41,6 +53,9 @@ export interface CreateTaskPayload {
   status: TaskStatus;
   category: TaskCategory;
   dueDate?: string | null;
+  subtasks?: Subtask[] | null;
+  loggedMinutes?: number;
+  estimatedMinutes?: number | null;
 }
 
 export type UpdateTaskPayload = Partial<CreateTaskPayload>;

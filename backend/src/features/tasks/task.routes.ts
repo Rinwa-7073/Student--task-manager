@@ -3,8 +3,10 @@ import { taskController } from '@features/tasks/task.controller';
 import { validateRequest } from '@middleware/validateRequest';
 import {
   createTaskSchema,
+  logTimeSchema,
   taskIdParamSchema,
   taskQuerySchema,
+  taskSubtaskParamSchema,
   updateTaskSchema,
 } from '@features/tasks/task.validation';
 
@@ -26,7 +28,7 @@ router.get('/', validateRequest({ query: taskQuerySchema }), taskController.getA
  * @openapi
  * /tasks/statistics:
  *   get:
- *     summary: Aggregate task statistics (counts by status/priority/category, overdue)
+ *     summary: Aggregate task statistics (counts by status/priority/category, overdue, focus time)
  *     tags: [Tasks]
  *     responses:
  *       200:
@@ -112,6 +114,38 @@ router.patch(
   '/:id/complete',
   validateRequest({ params: taskIdParamSchema }),
   taskController.markComplete,
+);
+
+/**
+ * @openapi
+ * /tasks/{id}/focus:
+ *   patch:
+ *     summary: Log focus time for a task (minutes)
+ *     tags: [Tasks]
+ *     responses:
+ *       200:
+ *         description: The updated task with logged focus minutes
+ */
+router.patch(
+  '/:id/focus',
+  validateRequest({ params: taskIdParamSchema, body: logTimeSchema }),
+  taskController.logFocusTime,
+);
+
+/**
+ * @openapi
+ * /tasks/{id}/subtasks/{subtaskId}/toggle:
+ *   patch:
+ *     summary: Toggle completion of a specific subtask
+ *     tags: [Tasks]
+ *     responses:
+ *       200:
+ *         description: The updated task
+ */
+router.patch(
+  '/:id/subtasks/:subtaskId/toggle',
+  validateRequest({ params: taskSubtaskParamSchema }),
+  taskController.toggleSubtask,
 );
 
 /**

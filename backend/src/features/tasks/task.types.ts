@@ -21,10 +21,35 @@ export const TASK_CATEGORIES = [
 ] as const;
 export type TaskCategory = (typeof TASK_CATEGORIES)[number];
 
+export interface Subtask {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+export interface TaskResponse {
+  id: string;
+  title: string;
+  description: string | null;
+  priority: TaskPriority;
+  status: TaskStatus;
+  category: TaskCategory;
+  dueDate: Date | null;
+  subtasks: Subtask[];
+  loggedMinutes: number;
+  estimatedMinutes: number | null;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface TaskStatistics {
   total: number;
   byStatus: Record<TaskStatus, number>;
   byPriority: Record<TaskPriority, number>;
   byCategory: Record<TaskCategory, number>;
   overdue: number;
+  totalLoggedMinutes: number;
+  completedSubtasksCount: number;
+  totalSubtasksCount: number;
 }

@@ -5,16 +5,6 @@ import { ApiError } from '@utils/ApiError';
 import { taskService } from '@features/tasks/task.service';
 import type { TaskQueryInput } from '@features/tasks/task.validation';
 
-/**
- * Thin HTTP adapter: parses/validated input already lives on `req`
- * (see task.validation.ts + validateRequest middleware), so controllers
- * are only responsible for calling the service and shaping the response.
- *
- * `requireUserId` reads `req.user.id`, populated by the `authenticate`
- * middleware (mounted on the whole `/tasks` router — see routes/index.ts).
- * The check here is a type-narrowing safety net, not the actual
- * enforcement — a request can't reach these handlers unauthenticated.
- */
 function requireUserId(req: Request): string {
   if (!req.user) throw new ApiError(401, 'Authentication required');
   return req.user.id;
@@ -59,6 +49,23 @@ export const taskController = {
       task,
       task.status === 'COMPLETED' ? 'Task marked complete' : 'Task marked incomplete',
     );
+  }),
+
+  logFocusTime: asyncHandler(async (req: Request, res: Response) => {
+    const userId = requireUserId(req);
+    const { minutes } = req.body;
+    const task = await taskService.logFocusTime(userId, req.params.id as string, minutes);
+    ApiResponse.ok(res, task, `Logged ${minutes} minutes of focus time`);
+  }),
+
+  toggleSubtask: asyncHandler(async (req: Request, res: Response) => {
+    const userId = requireUserId(req);
+    const task = await taskService.toggleSubtask(
+      userId,
+      req.params.id as string,
+      req.params.subtaskId as string,
+    );
+    ApiResponse.ok(res, task, 'Subtask status toggled successfully');
   }),
 
   remove: asyncHandler(async (req: Request, res: Response) => {
