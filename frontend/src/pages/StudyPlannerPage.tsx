@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
 
 const days = [
   'Monday',
@@ -12,7 +12,7 @@ const days = [
 ];
 
 type StudyTask = {
-  id: number;
+  id: string;
   subject: string;
   topic: string;
   day: string;
@@ -26,24 +26,31 @@ export default function StudyPlannerPage() {
   const [topic, setTopic] = useState('');
   const [day, setDay] = useState('Monday');
   const [duration, setDuration] = useState('1 hour');
+  const [error, setError] = useState('');
 
-  function addTask(e: React.FormEvent<HTMLFormElement>) {
+  function addTask(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (!subject.trim() || !topic.trim()) return;
+    const trimmedSubject = subject.trim();
+    const trimmedTopic = topic.trim();
+    if (!trimmedSubject || !trimmedTopic) {
+      setError('Subject and topic cannot be blank.');
+      return;
+    }
 
     setTasks((old) => [
       ...old,
       {
-        id: Date.now(),
-        subject: subject.trim(),
-        topic: topic.trim(),
+        id: crypto.randomUUID(),
+        subject: trimmedSubject,
+        topic: trimmedTopic,
         day,
         duration,
         completed: false,
       },
     ]);
 
+    setError('');
     setSubject('');
     setTopic('');
   }
@@ -58,7 +65,10 @@ export default function StudyPlannerPage() {
           className="rounded-md border p-3"
           placeholder="Subject (e.g. Python)"
           value={subject}
-          onChange={(e) => setSubject(e.target.value)}
+          onChange={(e) => {
+            setSubject(e.target.value);
+            setError('');
+          }}
           required
         />
 
@@ -66,9 +76,21 @@ export default function StudyPlannerPage() {
           className="rounded-md border p-3"
           placeholder="Topic (e.g. Functions)"
           value={topic}
-          onChange={(e) => setTopic(e.target.value)}
+          onChange={(e) => {
+            setTopic(e.target.value);
+            setError('');
+          }}
           required
         />
+
+        {error && (
+          <p
+            className="rounded-md border border-[color:var(--color-danger-500)]/30 bg-[color:var(--color-danger-500)]/10 px-3 py-2 text-sm text-[color:var(--color-danger-500)]"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
 
         <select
           className="rounded-md border p-3"
@@ -115,6 +137,7 @@ export default function StudyPlannerPage() {
                   <input
                     type="checkbox"
                     checked={task.completed}
+                    aria-label={`Mark ${task.topic} as completed`}
                     onChange={() =>
                       setTasks((old) =>
                         old.map((t) =>
