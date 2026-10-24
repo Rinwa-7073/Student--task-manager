@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useTask } from '@/features/tasks/hooks/useTasks';
@@ -75,19 +75,29 @@ export function TaskFormPage() {
     : taskFormDefaults;
 
   return (
-    <Card className="mx-auto max-w-2xl">
-      <CardHeader>
-        <CardTitle>{isEditMode ? 'Edit task' : 'Create a task'}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <TaskForm
-          defaultValues={defaultValues}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          submitLabel={isEditMode ? 'Save changes' : 'Create task'}
-          onCancel={() => navigate('/tasks')}
-        />
-      </CardContent>
-    </Card>
+    <div className="mx-auto max-w-2xl space-y-4">
+      <div>
+        <h2 className="font-display text-xl font-bold tracking-tight text-primary">
+          {isEditMode ? 'Edit task' : 'Create a task'}
+        </h2>
+        <p className="text-xs text-secondary">
+          {isEditMode
+            ? 'Update your task details, status, or study target'
+            : 'Fill in the information below to add a new task to your dashboard'}
+        </p>
+      </div>
+
+      <Card className="shadow-xs">
+        <CardContent className="p-6">
+          <TaskForm
+            defaultValues={defaultValues}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+            submitLabel={isEditMode ? 'Save changes' : 'Create task'}
+            onCancel={() => navigate('/tasks')}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 }

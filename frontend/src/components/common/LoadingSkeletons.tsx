@@ -4,10 +4,11 @@ import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 export function StatCardSkeleton() {
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-row items-center justify-between space-y-0 px-4 pb-2 pt-4">
         <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-8 w-8 rounded-lg" />
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 pb-4 pt-1">
         <Skeleton className="h-8 w-16" />
       </CardContent>
     </Card>

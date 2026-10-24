@@ -54,21 +54,21 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-xl border border-default bg-surface">
+      <div className="overflow-x-auto rounded-xl border border-default bg-surface shadow-xs">
         <table className="w-full min-w-[760px] text-left text-sm">
           <thead>
-            <tr className="border-b border-default text-xs uppercase tracking-wide text-secondary">
-              <th className="w-10 px-4 py-3 font-medium" aria-label="Complete" />
-              <th className="px-4 py-3 font-medium">Title</th>
-              <th className="px-4 py-3 font-medium">Category</th>
-              <th className="px-4 py-3 font-medium">Priority</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Due</th>
-              <th className="px-4 py-3 font-medium">Focus</th>
-              <th className="px-4 py-3 font-medium text-right">Actions</th>
+            <tr className="border-b border-default bg-slate-50/80 text-[11px] font-semibold uppercase tracking-wider text-secondary dark:bg-surface-2/70">
+              <th className="w-10 px-4 py-3" aria-label="Complete" />
+              <th className="px-4 py-3">Title</th>
+              <th className="px-4 py-3">Category</th>
+              <th className="px-4 py-3">Priority</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Due</th>
+              <th className="px-4 py-3">Focus</th>
+              <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-default">
             {tasks.map((task) => {
               const overdue = isOverdue(task.dueDate, task.status);
               const completed = task.status === 'COMPLETED';
@@ -76,11 +76,11 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
                 <tr
                   key={task.id}
                   className={cn(
-                    'border-b border-default last:border-0 hover:bg-surface-2/50',
-                    completed && 'opacity-60',
+                    'transition-colors hover:bg-slate-50/70 dark:hover:bg-surface-2/40',
+                    completed && 'opacity-65',
                   )}
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3.5">
                     <button
                       type="button"
                       role="checkbox"
@@ -88,10 +88,10 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
                       aria-label={completed ? `Mark "${task.title}" incomplete` : `Mark "${task.title}" complete`}
                       onClick={() => toggleComplete.mutate(task.id)}
                       className={cn(
-                        'flex h-5 w-5 items-center justify-center rounded-full border transition-colors',
+                        'flex h-5 w-5 items-center justify-center rounded-md border transition-colors',
                         completed
-                          ? 'border-[color:var(--color-success-500)] bg-[color:var(--color-success-500)] text-white'
-                          : 'border-default text-transparent hover:border-accent',
+                          ? 'border-[color:var(--color-success-500)] bg-[color:var(--color-success-500)] text-white shadow-2xs'
+                          : 'border-slate-300 bg-white text-transparent hover:border-accent dark:border-slate-600 dark:bg-slate-800',
                       )}
                     >
                       <Check className="h-3.5 w-3.5" strokeWidth={3} />
@@ -99,27 +99,27 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
                   </td>
                   <td
                     className={cn(
-                      'max-w-[280px] truncate px-4 py-3 font-medium text-primary',
-                      completed && 'line-through',
+                      'max-w-[280px] truncate px-4 py-3.5 font-medium text-primary',
+                      completed && 'line-through text-muted',
                     )}
                   >
                     {task.title}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3.5">
                     <Badge variant="neutral">{CATEGORY_LABEL[task.category]}</Badge>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3.5">
                     <Badge variant={PRIORITY_BADGE_VARIANT[task.priority]}>
                       {PRIORITY_LABEL[task.priority]}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3.5">
                     <Badge variant={STATUS_BADGE_VARIANT[task.status]}>{STATUS_LABEL[task.status]}</Badge>
                   </td>
                   <td
                     className={cn(
-                      'whitespace-nowrap px-4 py-3 font-mono text-xs text-secondary',
-                      overdue && 'font-semibold text-[color:var(--color-danger-500)]',
+                      'whitespace-nowrap px-4 py-3.5 font-mono text-xs text-secondary',
+                      overdue && 'font-semibold text-red-600 dark:text-red-400',
                     )}
                   >
                     <span className="inline-flex items-center gap-1.5">
@@ -127,19 +127,19 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
                       {formatDueDate(task.dueDate)}
                     </span>
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-secondary">
+                  <td className="whitespace-nowrap px-4 py-3.5 font-mono text-xs text-secondary">
                     <span
-                      className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 font-medium transition-colors hover:bg-surface-2"
+                      className="inline-flex items-center gap-1 rounded-md bg-surface-2/70 px-2 py-0.5 font-medium transition-colors hover:bg-surface-2"
                       title={task.estimatedMinutes ? `Goal: ${formatMinutes(task.estimatedMinutes)}` : 'Study focus time'}
                     >
                       <Timer className="h-3.5 w-3.5 text-accent" />
-                      {formatMinutes(task.loggedMinutes)}
+                      <span className="text-primary">{formatMinutes(task.loggedMinutes)}</span>
                       {task.estimatedMinutes ? (
                         <span className="text-[11px] text-muted">/{formatMinutes(task.estimatedMinutes)}</span>
                       ) : null}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3.5">
                     <div className="flex items-center justify-end gap-1">
                       <Button
                         variant="ghost"
@@ -147,13 +147,17 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
                         aria-label={`Start study session for ${task.title}`}
                         title="Focus Study Timer"
                         onClick={() => setFocusTask(task)}
+                        className="text-secondary hover:text-accent hover:bg-amber-50 dark:hover:bg-amber-950/40"
                       >
                         <Timer className="h-4 w-4 text-accent" />
                       </Button>
                       <Link
                         to={`/tasks/${task.id}/edit`}
                         aria-label={`Edit ${task.title}`}
-                        className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }))}
+                        className={cn(
+                          buttonVariants({ variant: 'ghost', size: 'icon' }),
+                          'text-secondary hover:text-primary hover:bg-surface-2',
+                        )}
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>
@@ -162,6 +166,7 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
                         size="icon"
                         aria-label={`Delete ${task.title}`}
                         onClick={() => setPendingDelete(task)}
+                        className="text-secondary hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

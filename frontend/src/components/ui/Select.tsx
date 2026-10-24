@@ -8,16 +8,16 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
       <select
         ref={ref}
         className={cn(
-          'h-9 w-full appearance-none rounded-md border border-default bg-surface px-3 pr-8 text-sm text-primary',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]',
-          'disabled:cursor-not-allowed disabled:opacity-50',
+          'h-10 w-full appearance-none rounded-lg border border-default bg-surface px-3.5 pr-9 text-sm text-primary shadow-2xs transition-colors cursor-pointer',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:border-accent',
+          'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-surface-2',
           className,
         )}
         {...props}
       >
         {children}
       </select>
-      <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary" />
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-secondary" />
     </div>
   ),
 );

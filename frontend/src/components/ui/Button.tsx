@@ -3,19 +3,24 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/cn';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)]',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] cursor-pointer',
   {
     variants: {
       variant: {
-        primary: 'bg-accent text-[color:var(--accent-foreground)] hover:brightness-105',
-        secondary: 'bg-surface-2 text-primary hover:bg-surface',
-        outline: 'border border-default bg-transparent text-primary hover:bg-surface-2',
-        ghost: 'bg-transparent text-secondary hover:bg-surface-2 hover:text-primary',
-        destructive: 'bg-[color:var(--color-danger-500)] text-white hover:brightness-105',
+        primary:
+          'bg-accent text-white font-semibold hover:bg-[color:var(--accent-hover)] shadow-xs active:scale-[0.99]',
+        secondary:
+          'bg-surface-2 text-primary hover:bg-slate-200/70 border border-default font-medium',
+        outline:
+          'border border-default bg-surface text-primary hover:bg-surface-2 hover:border-slate-300 font-medium shadow-2xs',
+        ghost:
+          'bg-transparent text-secondary hover:bg-surface-2 hover:text-primary font-medium',
+        destructive:
+          'bg-[color:var(--color-danger-500)] text-white hover:bg-[color:var(--color-danger-600)] shadow-xs font-semibold',
       },
       size: {
         sm: 'h-8 px-3 text-xs',
-        md: 'h-9 px-4',
+        md: 'h-9 px-4 text-sm',
         lg: 'h-11 px-6 text-base',
         icon: 'h-9 w-9',
       },

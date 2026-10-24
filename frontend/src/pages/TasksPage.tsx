@@ -39,16 +39,23 @@ export function TasksPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-display text-xl font-bold tracking-tight text-primary">Tasks</h2>
+          <p className="text-xs text-secondary">Manage, prioritize, and track all your academic goals</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2.5 rounded-xl border border-default bg-surface p-3 shadow-2xs">
         <Input
           placeholder="Search tasks..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="max-w-xs"
+          className="h-9 max-w-xs"
         />
 
         <Select
-          className="w-auto"
+          className="h-9 w-auto"
           value={filters.status ?? ''}
           onChange={(e) => updateFilter('status', (e.target.value || undefined) as TaskListParams['status'])}
         >
@@ -61,7 +68,7 @@ export function TasksPage() {
         </Select>
 
         <Select
-          className="w-auto"
+          className="h-9 w-auto"
           value={filters.priority ?? ''}
           onChange={(e) =>
             updateFilter('priority', (e.target.value || undefined) as TaskListParams['priority'])
@@ -76,7 +83,7 @@ export function TasksPage() {
         </Select>
 
         <Select
-          className="w-auto"
+          className="h-9 w-auto"
           value={filters.category ?? ''}
           onChange={(e) =>
             updateFilter('category', (e.target.value || undefined) as TaskListParams['category'])
@@ -91,7 +98,7 @@ export function TasksPage() {
         </Select>
 
         <Select
-          className="ml-auto w-auto"
+          className="h-9 ml-auto w-auto"
           value={`${filters.sortBy}:${filters.sortOrder}`}
           onChange={(e) => {
             const [sortBy, sortOrder] = e.target.value.split(':') as [

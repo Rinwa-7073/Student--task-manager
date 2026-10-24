@@ -113,11 +113,11 @@ export function TaskForm({
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 border-t border-default pt-5">
+      <div className="flex justify-end gap-2.5 border-t border-default pt-5">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" variant="primary" disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : submitLabel}
         </Button>
       </div>

@@ -35,7 +35,7 @@ export function Dialog({ open, onClose, title, description, children, className 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="animate-fade-in absolute inset-0 bg-black/50"
+        className="animate-fade-in absolute inset-0 bg-slate-900/35 backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -46,7 +46,7 @@ export function Dialog({ open, onClose, title, description, children, className 
         aria-labelledby="dialog-title"
         tabIndex={-1}
         className={cn(
-          'animate-slide-up relative z-10 w-full max-w-md rounded-xl border border-default bg-surface p-5 shadow-xl focus:outline-none',
+          'animate-slide-up relative z-10 w-full max-w-md rounded-2xl border border-default bg-surface p-6 shadow-xl focus:outline-none',
           className,
         )}
       >
@@ -61,7 +61,7 @@ export function Dialog({ open, onClose, title, description, children, className 
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="text-secondary hover:text-primary"
+            className="rounded-lg p-1 text-secondary transition-colors hover:bg-surface-2 hover:text-primary"
           >
             <X className="h-4 w-4" />
           </button>
