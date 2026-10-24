@@ -134,3 +134,35 @@ export function useToggleComplete() {
     },
   });
 }
+
+/**
+ * Logs study focus time (in minutes) for a task, updating cached task lists,
+ * task detail views, and aggregate study statistics.
+ */
+export function useLogFocusTime() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: ({ id, minutes }: { id: string; minutes: number }) =>
+      taskApi.logFocusTime(id, minutes),
+    onSuccess: (updatedTask, variables) => {
+      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: taskKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: taskKeys.statistics() });
+      toast({
+        title: 'Focus session recorded!',
+        description: `Logged ${variables.minutes}m focus time for "${updatedTask.title}".`,
+        variant: 'success',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Could not log focus time',
+        description: errorMessage(error),
+        variant: 'error',
+      });
+    },
+  });
+}
+

@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { useTask } from '@/features/tasks/hooks/useTasks';
 import { useCreateTask, useUpdateTask } from '@/features/tasks/hooks/useTaskMutations';
 import { taskFormDefaults, type TaskFormValues } from '@/features/tasks/taskFormSchema';
+import type { CreateTaskPayload } from '@/types/task';
 
 export function TaskFormPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,10 +19,24 @@ export function TaskFormPage() {
   const isSubmitting = createTask.isPending || updateTask.isPending;
 
   const handleSubmit = (values: TaskFormValues) => {
-    const payload = {
-      ...values,
+    const payload: CreateTaskPayload = {
+      title: values.title,
       description: values.description || null,
+      priority: values.priority,
+      status: values.status,
+      category: values.category,
       dueDate: values.dueDate ? new Date(values.dueDate).toISOString() : null,
+      estimatedMinutes:
+        typeof values.estimatedMinutes === 'number' && !isNaN(values.estimatedMinutes)
+          ? values.estimatedMinutes
+          : null,
+      subtasks: values.subtasks
+        ? values.subtasks.map((s, idx) => ({
+            id: s.id && s.id.length > 0 ? s.id : `st-${Date.now()}-${idx}`,
+            title: s.title,
+            completed: Boolean(s.completed),
+          }))
+        : null,
     };
 
     if (isEditMode && id) {
@@ -54,6 +69,8 @@ export function TaskFormPage() {
         status: task.status,
         category: task.category,
         dueDate: task.dueDate ? task.dueDate.slice(0, 10) : '',
+        estimatedMinutes: task.estimatedMinutes ?? '',
+        subtasks: task.subtasks ?? [],
       }
     : taskFormDefaults;
 

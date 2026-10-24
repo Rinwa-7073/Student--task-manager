@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Pencil, Trash2, Calendar, ListChecks, Check } from 'lucide-react';
+import { Pencil, Trash2, Calendar, ListChecks, Check, Timer } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { Button, buttonVariants } from '@/components/ui/Button';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { TaskTableSkeleton } from '@/components/common/LoadingSkeletons';
+import { FocusTimerDialog } from '@/components/tasks/FocusTimerDialog';
+import { formatMinutes } from '@/utils/timeFormat';
 import {
   CATEGORY_LABEL,
   PRIORITY_BADGE_VARIANT,
@@ -28,6 +30,7 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
   const deleteTask = useDeleteTask();
   const toggleComplete = useToggleComplete();
   const [pendingDelete, setPendingDelete] = useState<Task | null>(null);
+  const [focusTask, setFocusTask] = useState<Task | null>(null);
 
   if (isLoading) return <TaskTableSkeleton />;
 
@@ -61,6 +64,7 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
               <th className="px-4 py-3 font-medium">Priority</th>
               <th className="px-4 py-3 font-medium">Status</th>
               <th className="px-4 py-3 font-medium">Due</th>
+              <th className="px-4 py-3 font-medium">Focus</th>
               <th className="px-4 py-3 font-medium text-right">Actions</th>
             </tr>
           </thead>
@@ -123,8 +127,29 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
                       {formatDueDate(task.dueDate)}
                     </span>
                   </td>
+                  <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-secondary">
+                    <span
+                      className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 font-medium transition-colors hover:bg-surface-2"
+                      title={task.estimatedMinutes ? `Goal: ${formatMinutes(task.estimatedMinutes)}` : 'Study focus time'}
+                    >
+                      <Timer className="h-3.5 w-3.5 text-accent" />
+                      {formatMinutes(task.loggedMinutes)}
+                      {task.estimatedMinutes ? (
+                        <span className="text-[11px] text-muted">/{formatMinutes(task.estimatedMinutes)}</span>
+                      ) : null}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Start study session for ${task.title}`}
+                        title="Focus Study Timer"
+                        onClick={() => setFocusTask(task)}
+                      >
+                        <Timer className="h-4 w-4 text-accent" />
+                      </Button>
                       <Link
                         to={`/tasks/${task.id}/edit`}
                         aria-label={`Edit ${task.title}`}
@@ -148,6 +173,12 @@ export function TaskTable({ tasks, isLoading }: TaskTableProps) {
           </tbody>
         </table>
       </div>
+
+      <FocusTimerDialog
+        task={focusTask}
+        open={focusTask !== null}
+        onClose={() => setFocusTask(null)}
+      />
 
       <ConfirmDialog
         open={pendingDelete !== null}

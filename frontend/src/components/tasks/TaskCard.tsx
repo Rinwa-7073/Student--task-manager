@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Calendar } from 'lucide-react';
+import { Calendar, Timer } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { formatMinutes } from '@/utils/timeFormat';
 import {
   CATEGORY_LABEL,
   PRIORITY_BADGE_VARIANT,
@@ -43,14 +44,24 @@ export function TaskCard({ task }: { task: Task }) {
             <Badge variant={STATUS_BADGE_VARIANT[task.status]}>{STATUS_LABEL[task.status]}</Badge>
           </div>
 
-          <div
-            className={cn(
-              'flex items-center gap-1.5 font-mono text-xs text-secondary',
-              overdue && 'text-[color:var(--color-danger-500)]',
+          <div className="flex items-center justify-between font-mono text-xs text-secondary">
+            <div
+              className={cn(
+                'flex items-center gap-1.5',
+                overdue && 'text-[color:var(--color-danger-500)]',
+              )}
+            >
+              <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
+              {formatDueDate(task.dueDate)}
+            </div>
+
+            {(task.loggedMinutes ?? 0) > 0 && (
+              <div className="flex items-center gap-1 text-accent font-medium" title="Logged study focus time">
+                <Timer className="h-3.5 w-3.5" aria-hidden="true" />
+                {formatMinutes(task.loggedMinutes)}
+                {task.estimatedMinutes ? ` / ${formatMinutes(task.estimatedMinutes)}` : ''}
+              </div>
             )}
-          >
-            <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
-            {formatDueDate(task.dueDate)}
           </div>
         </CardContent>
       </Card>

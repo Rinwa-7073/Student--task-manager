@@ -29,7 +29,7 @@ export function TaskForm({
     handleSubmit,
     formState: { errors },
   } = useForm<TaskFormValues>({
-    resolver: zodResolver(taskFormSchema),
+    resolver: zodResolver(taskFormSchema) as any,
     defaultValues,
   });
 
@@ -94,9 +94,23 @@ export function TaskForm({
         </div>
       </div>
 
-      <div className="max-w-xs">
-        <Label htmlFor="dueDate">Due date</Label>
-        <Input id="dueDate" type="date" {...register('dueDate')} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="dueDate">Due date</Label>
+          <Input id="dueDate" type="date" {...register('dueDate')} />
+        </div>
+
+        <div>
+          <Label htmlFor="estimatedMinutes">Estimated Study Target (minutes)</Label>
+          <Input
+            id="estimatedMinutes"
+            type="number"
+            min="1"
+            placeholder="e.g. 60"
+            {...register('estimatedMinutes', { valueAsNumber: true })}
+          />
+          <p className="mt-1 text-[11px] text-secondary">Target focus duration for this task</p>
+        </div>
       </div>
 
       <div className="flex justify-end gap-2 border-t border-default pt-5">
